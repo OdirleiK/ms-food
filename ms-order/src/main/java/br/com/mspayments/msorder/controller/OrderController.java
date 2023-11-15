@@ -36,33 +36,33 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> listarPorId(@PathVariable @NotNull Long id) {
+    public ResponseEntity<OrderDto> listById(@PathVariable @NotNull Long id) {
         OrderDto dto = service.findById(id);
         return  ResponseEntity.ok(dto);
     }
 
     @GetMapping("/porta")
-    public String retornaPorta(@Value("${local.server.port}") String porta){
+    public String getPort(@Value("${local.server.port}") String porta){
         return String.format("Requisição respondida pela instância executando na porta %s", porta);
     }
 
     @PostMapping()
-    public ResponseEntity<OrderDto> realizaPedido(@RequestBody @Valid OrderDto dto, UriComponentsBuilder uriBuilder) {
-        OrderDto pedidoRealizado = service.creatOrder(dto);
-        URI endereco = uriBuilder.path("/pedidos/{id}").buildAndExpand(pedidoRealizado.getId()).toUri();
-        return ResponseEntity.created(endereco).body(pedidoRealizado);
+    public ResponseEntity<OrderDto> placeOrder(@RequestBody @Valid OrderDto dto, UriComponentsBuilder uriBuilder) {
+        OrderDto createdOrder = service.creatOrder(dto);
+        URI endereco = uriBuilder.path("/pedidos/{id}").buildAndExpand(createdOrder.getId()).toUri();
+        return ResponseEntity.created(endereco).body(createdOrder);
 
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<OrderDto> atualizaStatus(@PathVariable Long id, @RequestBody StatusDto status){
+    public ResponseEntity<OrderDto> updateStatus(@PathVariable Long id, @RequestBody StatusDto status){
        OrderDto dto = service.updateStatus(id, status);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}/pago")
-    public ResponseEntity<Void> aprovaPagamento(@PathVariable @NotNull Long id) {
-        service.aprovaPagamentoPedido(id);
+    public ResponseEntity<Void> approvePayment(@PathVariable @NotNull Long id) {
+        service.approvePaymentOrder(id);
         return ResponseEntity.ok().build();
 
     }

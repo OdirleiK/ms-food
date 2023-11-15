@@ -58,7 +58,7 @@ public class OrderService {
         return modelMapper.map(order, OrderDto.class);
     }
     
-    public void aprovaPagamentoPedido(Long id) {
+    public void approvePaymentOrder(Long id) {
     	Order order = repository.porIdComItens(id);
         if (order == null) {
             throw new EntityNotFoundException();
