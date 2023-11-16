@@ -23,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mspayments.payments.dto.PaymentDTO;
 import br.com.mspayments.payments.service.PaymentService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @RestController
 @RequestMapping("/payments")
@@ -64,7 +65,12 @@ public class PaymentController {
     }
 
     @PatchMapping("/{id}/confirmar")
+    @CircuitBreaker(name = "updateOrder", fallbackMethod = "confirmedWithoutIntegration")
     public void confirmPayment(@PathVariable @NotNull Long id){
         service.confirmPayment(id);
+    }
+    
+    public void confirmedWithoutIntegration(Long id, Exception e){
+        service.updateStatus(id);
     }
 }
