@@ -1,5 +1,7 @@
 package br.com.mspayments.payments.service;
 
+import java.util.Optional;
+
 import javax.persistence.EntityNotFoundException;
 
 import org.modelmapper.ModelMapper;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.mspayments.payments.dto.PaymentDTO;
+import br.com.mspayments.payments.http.OrderClient;
 import br.com.mspayments.payments.model.Payment;
 import br.com.mspayments.payments.model.Status;
 import br.com.mspayments.payments.repository.PaymentRepository;
@@ -21,6 +24,9 @@ public class PaymentService {
 	
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private OrderClient orderClient;
 	
 	public Page<PaymentDTO> getAll(Pageable paginacao) {
         return repository
@@ -52,6 +58,18 @@ public class PaymentService {
 
     public void deletePayment(Long id) {
         repository.deleteById(id);
+    }
+    
+    public void confirmPayment(Long id){
+        Optional<Payment> payment = repository.findById(id);
+
+        if (!payment.isPresent()) {
+            throw new EntityNotFoundException();
+        }
+
+        payment.get().setStatus(Status.CONFIRMADO);
+        repository.save(payment.get());
+        orderClient.updatePayment(payment.get().getOrderId());
     }
 
 }
