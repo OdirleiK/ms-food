@@ -9,9 +9,13 @@ import java.util.Arrays;
 public class PaymentAwsInfraApp {
     public static void main(final String[] args) {
         App app = new App();
-        new PaymentAwsVpcStack(app, "Vpc");
-
+        
+        PaymentVpcStack vpcStack = new PaymentVpcStack(app, "Vpc");
+        PaymentClusterStack clusterStack = new PaymentClusterStack(app, "Cluster", vpcStack.getVpc());
+        clusterStack.addDependency(vpcStack);
+        
         app.synth();
+        
     }
 }
 
