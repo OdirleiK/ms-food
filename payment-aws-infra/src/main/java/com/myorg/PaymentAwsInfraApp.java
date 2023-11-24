@@ -11,13 +11,18 @@ public class PaymentAwsInfraApp {
         App app = new App();
         
         PaymentVpcStack vpcStack = new PaymentVpcStack(app, "Vpc");
+        
         PaymentClusterStack clusterStack = new PaymentClusterStack(app, "Cluster", vpcStack.getVpc());
         clusterStack.addDependency(vpcStack);
+        
+        PaymentRdsStack rdsStack = new PaymentRdsStack(app, "Rds", vpcStack.getVpc());
+        rdsStack.addDependency(vpcStack);
         
         PaymentServiceStack serviceStack = new PaymentServiceStack(app, "Service", clusterStack.getCluster());
         serviceStack.addDependency(clusterStack);
         
-        app.synth();
+        
+        app.synth(); 
         
     }
 }
