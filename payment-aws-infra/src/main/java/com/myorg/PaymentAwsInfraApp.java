@@ -14,6 +14,9 @@ public class PaymentAwsInfraApp {
         PaymentClusterStack clusterStack = new PaymentClusterStack(app, "Cluster", vpcStack.getVpc());
         clusterStack.addDependency(vpcStack);
         
+        PaymentServiceStack serviceStack = new PaymentServiceStack(app, "Service", clusterStack.getCluster());
+        serviceStack.addDependency(clusterStack);
+        
         app.synth();
         
     }
