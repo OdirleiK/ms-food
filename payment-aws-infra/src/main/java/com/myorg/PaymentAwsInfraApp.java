@@ -20,7 +20,7 @@ public class PaymentAwsInfraApp {
         
         PaymentServiceStack serviceStack = new PaymentServiceStack(app, "Service", clusterStack.getCluster());
         serviceStack.addDependency(clusterStack);
-        
+        serviceStack.addDependency(rdsStack);
         
         app.synth(); 
         
