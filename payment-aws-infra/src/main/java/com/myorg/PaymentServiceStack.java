@@ -3,22 +3,16 @@ package com.myorg;
 import java.util.HashMap;
 import java.util.Map;
 
-import software.amazon.awscdk.Fn;
-import software.amazon.awscdk.RemovalPolicy;
-import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.applicationautoscaling.EnableScalingProps;
 import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.ecr.Repository;
-import software.amazon.awscdk.services.ecs.AwsLogDriverProps;
-// import software.amazon.awscdk.Duration;
-// import software.amazon.awscdk.services.sqs.Queue;
-import software.amazon.awscdk.services.ecs.Cluster;
-import software.amazon.awscdk.services.ecs.ContainerImage;
-import software.amazon.awscdk.services.ecs.LogDriver;
+import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedFargateService;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedTaskImageOptions;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.constructs.Construct;
+
 
 public class PaymentServiceStack extends Stack {
     public PaymentServiceStack(final Construct scope, final String id, final Cluster cluster) {
@@ -38,11 +32,11 @@ public class PaymentServiceStack extends Stack {
         
         IRepository repository = Repository.fromRepositoryName(this, "repository", "img-order-ms");
 
-        ApplicationLoadBalancedFargateService.Builder.create(this, "FoodService")
+        ApplicationLoadBalancedFargateService foodService = ApplicationLoadBalancedFargateService.Builder.create(this, "FoodService")
         .serviceName("food-service-ola")
         .cluster(cluster)           // Required
         .cpu(512)                   // Default is 256
-        .desiredCount(3)            // Default is 1
+        .desiredCount(1)            // Default is 1
         .listenerPort(8080)
         .assignPublicIp(true)
         .taskImageOptions(ApplicationLoadBalancedTaskImageOptions.builder()
@@ -61,5 +55,20 @@ public class PaymentServiceStack extends Stack {
         .memoryLimitMiB(1024)       // Default is 512
         .publicLoadBalancer(true)   // Default is false
         .build();
+        
+        ScalableTaskCount scalableTarget = foodService.getService().autoScaleTaskCount(EnableScalingProps.builder()
+                .minCapacity(1)
+                .maxCapacity(3)
+                .build());
+        scalableTarget.scaleOnCpuUtilization("CpuScaling", CpuUtilizationScalingProps.builder()
+                .targetUtilizationPercent(75)
+                	.scaleInCooldown(Duration.minutes(3))
+                	.scaleOutCooldown(Duration.minutes(2))
+                .build());
+        scalableTarget.scaleOnMemoryUtilization("MemoryScaling", MemoryUtilizationScalingProps.builder()
+                .targetUtilizationPercent(70)
+	                .scaleInCooldown(Duration.minutes(3))
+	            	.scaleOutCooldown(Duration.minutes(2))
+                .build());
     }
 }
