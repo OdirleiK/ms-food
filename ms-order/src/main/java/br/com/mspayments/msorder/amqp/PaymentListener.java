@@ -4,11 +4,23 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import br.com.mspayments.msorder.dto.PaymentDto;
+
 @Component
 public class PaymentListener {
 
 	@RabbitListener(queues = "payment.created")
-	public void receiveMessage(Message message) {
-		System.out.println("message receive:" + message.toString());
+	public void receiveMessage(PaymentDto payment) {
+		String message = """
+				Dados do pagamento: %S
+				Numero do pedido: %s
+				Valor: %s
+				Status %s
+				""".formatted(payment.getId(), 
+							  payment.getOrderId(), 
+							  payment.getValue(), 
+							  payment.getStatus());
+		
+        System.out.println("Recebi a mensagem " + message);
 	}
 }
