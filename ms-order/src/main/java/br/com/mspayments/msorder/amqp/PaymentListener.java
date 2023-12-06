@@ -9,6 +9,8 @@ import br.com.mspayments.msorder.dto.PaymentDto;
 @Component
 public class PaymentListener {
 
+	
+	
 	@RabbitListener(queues = "payments.details-order")
 	public void receiveMessage(PaymentDto payment) {
 		String message = """
