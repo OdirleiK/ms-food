@@ -1,5 +1,6 @@
 package br.com.mspayments.payments.amqp;
 
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -12,12 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PaymentAMQPConfiguration {
-	
-	@Bean
-	public Queue creatQueue() {
-		return new Queue("payment.concluded", false);
-	}
-	
+		
 	@Bean
 	public RabbitAdmin creatRabbitAdmin(ConnectionFactory conn) {
 		return new RabbitAdmin(conn);
@@ -40,4 +36,8 @@ public class PaymentAMQPConfiguration {
 		return rabbitTemplate;
 	}
 
+	@Bean 
+	public FanoutExchange fanoutExchange() {
+		return new FanoutExchange("payments.ex");
+	}
 }

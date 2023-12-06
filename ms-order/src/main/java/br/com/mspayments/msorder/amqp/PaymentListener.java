@@ -9,7 +9,7 @@ import br.com.mspayments.msorder.dto.PaymentDto;
 @Component
 public class PaymentListener {
 
-	@RabbitListener(queues = "payment.created")
+	@RabbitListener(queues = "payments.details-order")
 	public void receiveMessage(PaymentDto payment) {
 		String message = """
 				Dados do pagamento: %S
