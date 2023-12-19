@@ -13,6 +13,7 @@ public class PaymentListener {
 	
 	@RabbitListener(queues = "payments.details-order")
 	public void receiveMessage(PaymentDto payment) {
+		
 		String message = """
 				Dados do pagamento: %S
 				Numero do pedido: %s
